@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -16,29 +17,49 @@ import {
   Image,
   Link,
   Flex,
-} from '@chakra-ui/react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { useNavigate } from 'react-router-dom';
-
+} from "@chakra-ui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email === '' || password === '') {
-      setError('Veuillez remplir tous les champs.');
-    } else {
-      setError('');
+    if (email === "" || password === "") {
+      setError("Veuillez remplir tous les champs.");
+      return;
     }
 
+    try {
+      setIsLoading(true);
+      const response = await axios.post("http://localhost/api/auth/login", {
+        email,
+        password,
+      });
+
+      const { token, refreshToken, user } = response.data;
+
+      // 🔐 Stockage en session
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("refreshToken", refreshToken);
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ Redirection après connexion
+      navigate("/home");
+    } catch (error) {
+      setError("Email ou mot de passe incorrect.");
+      console.error("Erreur de connexion :", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,8 +67,13 @@ const Login = () => {
       <Container maxW="400px" w="100%">
         <VStack spacing={8} align="stretch">
           <Box textAlign="center" mt={4}>
-            <Image src="/img/logo.png" alt="Yass'Eat Logo" mx="auto" mb="auto" boxSize="auto" />
-            
+            <Image
+              src="/img/logo.png"
+              alt="Yass'Eat Logo"
+              mx="auto"
+              mb="auto"
+              boxSize="auto"
+            />
           </Box>
           <Divider borderColor="#B6F09C" borderWidth={2} />
           <Heading
@@ -90,7 +116,7 @@ const Login = () => {
                 </FormLabel>
                 <InputGroup>
                   <Input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Mot de passe"
@@ -103,9 +129,15 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       variant="ghost"
                       size="sm"
-                      aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                      aria-label={
+                        showPassword
+                          ? "Masquer le mot de passe"
+                          : "Afficher le mot de passe"
+                      }
                     >
-                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEyeSlash : faEye}
+                      />
                     </Button>
                   </InputRightElement>
                 </InputGroup>
@@ -115,7 +147,7 @@ const Login = () => {
                 color="#1A1A3F"
                 textAlign="right"
                 cursor="pointer"
-                _hover={{ textDecoration: 'underline' }}
+                _hover={{ textDecoration: "underline" }}
                 mb={2}
               >
                 mot de passe oublié
@@ -133,7 +165,6 @@ const Login = () => {
                 loadingText="Connexion en cours..."
                 boxShadow="0 2px 8px rgba(126,217,87,0.10)"
                 _hover={{ bg: "#54B435" }}
-                onClick={() => navigate('/home')}
               >
                 Connexion
               </Button>
@@ -147,7 +178,7 @@ const Login = () => {
                 mt={2}
                 bg="white"
                 borderColor="#E2E8F0"
-                _hover={{ bg: '#F5F5F5' }}
+                _hover={{ bg: "#F5F5F5" }}
               >
                 Continue with Google
               </Button>
@@ -167,7 +198,7 @@ const Login = () => {
               textDecoration="underline"
               cursor="pointer"
               fontSize="lg"
-              onClick={() => navigate('/register')}
+              onClick={() => navigate("/register")}
             >
               CRÉER UN COMPTE
             </Link>
@@ -178,4 +209,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

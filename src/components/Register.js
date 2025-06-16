@@ -1,39 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 import {
-  Box, Button, FormControl, FormLabel, Input, Heading, VStack, Alert, AlertIcon,
-  Container, Divider, HStack, Text, Link, SimpleGrid, Image, Select
-} from '@chakra-ui/react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { useNavigate } from 'react-router-dom';
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Heading,
+  VStack,
+  Alert,
+  AlertIcon,
+  Container,
+  Divider,
+  HStack,
+  Text,
+  Link,
+  SimpleGrid,
+  Image,
+  Select,
+} from "@chakra-ui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [form, setForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    userType: 'client',
+    email: "",
+    password: "",
+    confirmPassword: "",
+    userType: "client",
     // Champs communs pour client et livreur
-    firstName: '',
-    lastName: '',
-    address: '',
-    phone: '',
+    firstName: "",
+    lastName: "",
+    address: "",
+    phone: "",
     // Champs spécifiques au client
-    birthDate: '',
+    birthDate: "",
     // Champs spécifiques au livreur
-    vehicle: '',
-    deliveryZone: '',
-    experience: '',
+    vehicle: "",
+    deliveryZone: "",
+    experience: "",
     // Champs spécifiques au restaurateur
-    restaurantName: '',
-    restaurantAddress: '',
-    cuisineType: '',
+    restaurantName: "",
+    restaurantAddress: "",
+    cuisineType: "",
     // Champs spécifiques à l'admin
-    position: ''
+    position: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,53 +57,112 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.email || !form.password || !form.confirmPassword) {
-      setError('Veuillez remplir tous les champs obligatoires.');
+      setError("Veuillez remplir tous les champs obligatoires.");
       return;
     }
+
     if (form.password !== form.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError("Les mots de passe ne correspondent pas.");
       return;
     }
-    
+
     // Validation des champs spécifiques selon le type d'utilisateur
     switch (form.userType) {
-      case 'client':
+      case "client":
         if (!form.firstName || !form.lastName || !form.address || !form.phone) {
-          setError('Veuillez remplir tous les champs obligatoires du client.');
+          setError("Veuillez remplir tous les champs obligatoires du client.");
           return;
         }
         break;
-      case 'livreur':
-        if (!form.firstName || !form.lastName || !form.address || !form.phone || !form.vehicle || !form.deliveryZone || !form.experience) {
-          setError('Veuillez remplir tous les champs obligatoires du livreur.');
+      case "livreur":
+        if (
+          !form.firstName ||
+          !form.lastName ||
+          !form.address ||
+          !form.phone ||
+          !form.vehicle ||
+          !form.deliveryZone ||
+          !form.experience
+        ) {
+          setError("Veuillez remplir tous les champs obligatoires du livreur.");
           return;
         }
         break;
-      case 'restaurateur':
-        if (!form.phone || !form.restaurantName || !form.restaurantAddress || !form.cuisineType) {
-          setError('Veuillez remplir tous les champs obligatoires du restaurateur.');
+      case "restaurateur":
+        if (
+          !form.phone ||
+          !form.restaurantName ||
+          !form.restaurantAddress ||
+          !form.cuisineType
+        ) {
+          setError(
+            "Veuillez remplir tous les champs obligatoires du restaurateur."
+          );
           return;
         }
         break;
-      case 'admin':
+      case "admin":
         if (!form.position) {
-          setError('Veuillez remplir tous les champs obligatoires de l\'administrateur.');
+          setError(
+            "Veuillez remplir tous les champs obligatoires de l'administrateur."
+          );
           return;
         }
         break;
     }
 
-    setError('');
-    // TODO: Appel API pour créer l'utilisateur
-    navigate('/home');
+    // ✅ Appel API + stockage
+    try {
+      setIsLoading(true);
+
+      const payload = {
+        email: form.email,
+        password: form.password,
+        role: form.userType,
+        nom: form.lastName,
+        prénom: form.firstName,
+        adresse: form.address,
+        téléphone: form.phone,
+        ...(form.birthDate && { date_naissance: form.birthDate }),
+        ...(form.vehicle && { véhicule: form.vehicle }),
+        ...(form.deliveryZone && { zone_livr: form.deliveryZone }),
+        ...(form.experience && { expérience: form.experience }),
+        ...(form.restaurantName && { nom_restaurant: form.restaurantName }),
+        ...(form.restaurantAddress && {
+          adresse_restau: form.restaurantAddress,
+        }),
+        ...(form.cuisineType && { type_cuisine: form.cuisineType }),
+        ...(form.position && { poste: form.position }),
+      };
+
+      const response = await axios.post(
+        "http://localhost/api/auth/register",
+        payload
+      );
+
+      const { token, user } = response.data;
+
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      navigate("/home");
+    } catch (error) {
+      console.error("❌ Erreur lors de l'inscription :", error);
+      setError(error.response?.data?.error || "Erreur lors de l'inscription.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderCommonFields = () => {
-    if (form.userType === 'restaurateur') {
+    if (form.userType === "restaurateur") {
       return (
         <FormControl isRequired>
-          <FormLabel color="#7ED957" fontWeight="bold">Téléphone</FormLabel>
+          <FormLabel color="#7ED957" fontWeight="bold">
+            Téléphone
+          </FormLabel>
           <Input
             name="phone"
             value={form.phone}
@@ -104,7 +179,9 @@ const Register = () => {
       <>
         <SimpleGrid columns={2} spacing={4}>
           <FormControl isRequired>
-            <FormLabel color="#7ED957" fontWeight="bold">Prénom</FormLabel>
+            <FormLabel color="#7ED957" fontWeight="bold">
+              Prénom
+            </FormLabel>
             <Input
               name="firstName"
               value={form.firstName}
@@ -115,7 +192,9 @@ const Register = () => {
             />
           </FormControl>
           <FormControl isRequired>
-            <FormLabel color="#7ED957" fontWeight="bold">Nom</FormLabel>
+            <FormLabel color="#7ED957" fontWeight="bold">
+              Nom
+            </FormLabel>
             <Input
               name="lastName"
               value={form.lastName}
@@ -128,7 +207,9 @@ const Register = () => {
         </SimpleGrid>
 
         <FormControl isRequired>
-          <FormLabel color="#7ED957" fontWeight="bold">Adresse</FormLabel>
+          <FormLabel color="#7ED957" fontWeight="bold">
+            Adresse
+          </FormLabel>
           <Input
             name="address"
             value={form.address}
@@ -140,7 +221,9 @@ const Register = () => {
         </FormControl>
 
         <FormControl isRequired>
-          <FormLabel color="#7ED957" fontWeight="bold">Téléphone</FormLabel>
+          <FormLabel color="#7ED957" fontWeight="bold">
+            Téléphone
+          </FormLabel>
           <Input
             name="phone"
             value={form.phone}
@@ -156,11 +239,13 @@ const Register = () => {
 
   const renderSpecificFields = () => {
     switch (form.userType) {
-      case 'client':
+      case "client":
         return (
           <>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Date de naissance</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Date de naissance
+              </FormLabel>
               <Input
                 name="birthDate"
                 type="date"
@@ -172,11 +257,13 @@ const Register = () => {
             </FormControl>
           </>
         );
-      case 'livreur':
+      case "livreur":
         return (
           <>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Véhicule</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Véhicule
+              </FormLabel>
               <Input
                 name="vehicle"
                 value={form.vehicle}
@@ -187,7 +274,9 @@ const Register = () => {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Zone de livraison</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Zone de livraison
+              </FormLabel>
               <Input
                 name="deliveryZone"
                 value={form.deliveryZone}
@@ -198,7 +287,9 @@ const Register = () => {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Expérience</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Expérience
+              </FormLabel>
               <Input
                 name="experience"
                 value={form.experience}
@@ -210,11 +301,13 @@ const Register = () => {
             </FormControl>
           </>
         );
-      case 'restaurateur':
+      case "restaurateur":
         return (
           <>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Nom du restaurant</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Nom du restaurant
+              </FormLabel>
               <Input
                 name="restaurantName"
                 value={form.restaurantName}
@@ -225,7 +318,9 @@ const Register = () => {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Adresse du restaurant</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Adresse du restaurant
+              </FormLabel>
               <Input
                 name="restaurantAddress"
                 value={form.restaurantAddress}
@@ -236,7 +331,9 @@ const Register = () => {
               />
             </FormControl>
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Type de cuisine</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Type de cuisine
+              </FormLabel>
               <Input
                 name="cuisineType"
                 value={form.cuisineType}
@@ -248,10 +345,12 @@ const Register = () => {
             </FormControl>
           </>
         );
-      case 'admin':
+      case "admin":
         return (
           <FormControl isRequired>
-            <FormLabel color="#7ED957" fontWeight="bold">Poste</FormLabel>
+            <FormLabel color="#7ED957" fontWeight="bold">
+              Poste
+            </FormLabel>
             <Input
               name="position"
               value={form.position}
@@ -268,13 +367,34 @@ const Register = () => {
   };
 
   return (
-    <Container maxW="md" py={10} minH="100vh" display="flex" flexDir="column" justifyContent="center">
+    <Container
+      maxW="md"
+      py={10}
+      minH="100vh"
+      display="flex"
+      flexDir="column"
+      justifyContent="center"
+    >
       <VStack spacing={6} align="stretch">
         <Box textAlign="center">
-          <Image src="/img/logo.png" alt="Yass'Eat Logo" mx="auto" mb="auto" boxSize="auto" />
+          <Image
+            src="/img/logo.png"
+            alt="Yass'Eat Logo"
+            mx="auto"
+            mb="auto"
+            boxSize="auto"
+          />
         </Box>
         <Divider borderColor="#7ED957" borderWidth={2} />
-        <Heading as="h2" size="xl" color="#1A1A3F" fontWeight="extrabold" textAlign="center" letterSpacing="1px" mb={2}>
+        <Heading
+          as="h2"
+          size="xl"
+          color="#1A1A3F"
+          fontWeight="extrabold"
+          textAlign="center"
+          letterSpacing="1px"
+          mb={2}
+        >
           CRÉER UN COMPTE
         </Heading>
         {error && (
@@ -286,7 +406,9 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <VStack spacing={4} align="stretch">
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Type d'utilisateur</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Type d'utilisateur
+              </FormLabel>
               <Select
                 name="userType"
                 value={form.userType}
@@ -302,7 +424,9 @@ const Register = () => {
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Email</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Email
+              </FormLabel>
               <Input
                 name="email"
                 type="email"
@@ -315,7 +439,9 @@ const Register = () => {
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Mot de passe</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Mot de passe
+              </FormLabel>
               <Input
                 name="password"
                 type="password"
@@ -328,7 +454,9 @@ const Register = () => {
             </FormControl>
 
             <FormControl isRequired>
-              <FormLabel color="#7ED957" fontWeight="bold">Confirmer le mot de passe</FormLabel>
+              <FormLabel color="#7ED957" fontWeight="bold">
+                Confirmer le mot de passe
+              </FormLabel>
               <Input
                 name="confirmPassword"
                 type="password"
@@ -369,7 +497,7 @@ const Register = () => {
               mt={2}
               bg="white"
               borderColor="#E2E8F0"
-              _hover={{ bg: '#F5F5F5' }}
+              _hover={{ bg: "#F5F5F5" }}
             >
               Continue with Google
             </Button>
@@ -377,11 +505,19 @@ const Register = () => {
         </form>
         <HStack my={4} align="center">
           <Divider borderColor="#7ED957" />
-          <Text color="#7ED957" fontWeight="bold">ou</Text>
+          <Text color="#7ED957" fontWeight="bold">
+            ou
+          </Text>
           <Divider borderColor="#7ED957" />
         </HStack>
         <Text textAlign="center">
-          <Link color="#1A1A3F" fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => navigate('/login')}>
+          <Link
+            color="#1A1A3F"
+            fontWeight="bold"
+            textDecoration="underline"
+            cursor="pointer"
+            onClick={() => navigate("/login")}
+          >
             SE CONNECTER
           </Link>
         </Text>
@@ -390,4 +526,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;
