@@ -48,6 +48,13 @@ export default function MapPage() {
   const mapCenter = [48.864716, 2.349014];
   const navigate = useNavigate();
 
+    useEffect(() => {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+      }
+    }, []);
+
   return (
     <Box>
       <Sidebar isOpen={isMenuOpen} onClose={onMenuClose} />

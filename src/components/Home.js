@@ -10,26 +10,9 @@ import Sidebar from './SideBar'; // Assurez-vous que le chemin est correct
 import {
   FaCartShopping, FaStar, FaBars, FaBurger, FaPizzaSlice, FaFishFins, FaHotdog, FaBreadSlice, FaMoon, FaLocationDot
 } from 'react-icons/fa6';
-//   import {
-//   Box,
-//   Flex,
-//   Heading,
-//   Input,
-//   IconButton,
-//   Button,
-//   Text,
-//   VStack,
-//   HStack,
-//   Image,
-//   Badge,
-//   SimpleGrid,
-//   Divider,
-//   Avatar,
-// } from "@chakra-ui/react";
-// import { SearchIcon } from "@chakra-ui/icons";
-// import { FaShoppingCart, FaStar, FaMapMarkerAlt, FaBars } from "react-icons/fa";
 
-// --- Données de simulation (inchangées) ---
+
+// --- Données de simulation ---
 const categories = [
     { label: 'Burger', icon: FaBurger }, { label: 'Tacos', icon: FaHotdog }, { label: 'Sushi', icon: FaFishFins },
     { label: 'Pizza', icon: FaPizzaSlice }, { label: 'Sandwich', icon: FaBreadSlice }, { label: 'Halal', icon: FaMoon },

@@ -81,6 +81,13 @@ export default function RestaurantPage() {
     return cart.reduce((total, item) => total + item.quantity, 0);
   }, [cart]);
 
+      useEffect(() => {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          navigate("/login");
+        }
+      }, []);
+
 
   return (
     <Box>
