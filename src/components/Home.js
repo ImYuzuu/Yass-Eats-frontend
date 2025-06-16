@@ -58,7 +58,7 @@ export default function Home() {
         if (payload && payload.role) {
           const role = payload.role;
           setUserRole(role);
-          if (role === "Livreur") { // Corrected "livreur" to "Livreur" based on common case convention
+          if (role === "livreur") { // Corrected "livreur" to "Livreur" based on common case convention
             navigate("/map");
           }
         }
