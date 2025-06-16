@@ -59,7 +59,7 @@ export default function Home() {
           const role = payload.role;
           setUserRole(role);
           if (role === "livreur") { // Corrected "livreur" to "Livreur" based on common case convention
-            navigate("/map");
+            navigate("/MapPage");
           }
         }
       } catch (error) {
