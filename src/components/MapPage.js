@@ -6,6 +6,7 @@ import L from 'leaflet';
 import { FaMotorcycle, FaBars, FaLocationDot, FaBicycle } from 'react-icons/fa6';
 import Sidebar from './SideBar';
 import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
 
 
 // --- Données de simulation (inchangées) ---
@@ -18,6 +19,7 @@ const ordersData = [
     { id: 6, name: "BURGER KING", address: "7 rue du Chevalier, Paris, 75 000", articles: 2, montant: "2,95 €", coords: [48.8620, 2.3522] },
     { id: 7, name: "BURGER KING", address: "433 rue de Rio, Paris, 75 000", articles: 2, montant: "4,20 €", coords: [48.8650, 2.3350] },
     { id: 8, name: "SUBWAY", address: "8 rue de Nancy, Paris, 75 000", articles: 3, montant: "3,30 €", coords: [48.8530, 2.3450] },
+    { id: 9, name: "POK'ARNAUD", address: "6 rue de la rue, Paris, 75 000", articles: 3, montant: "3,30 €", coords: [48.863296442665366, 2.2476807193546295] },
 ];
 
 const createNumberedIcon = (number) => {
@@ -58,14 +60,7 @@ export default function MapPage() {
   return (
     <Box>
       <Sidebar isOpen={isMenuOpen} onClose={onMenuClose} />
-      <Flex as="header" position="sticky" top="0" zIndex="sticky" align="center" justify="space-between" bg="white" px={6} py={3} boxShadow="sm">
-        <HStack spacing={3}>
-            <IconButton icon={<FaBars />} variant="ghost" aria-label="Ouvrir le menu" onClick={onMenuOpen} />
-            <Image src="/img/logo.png" alt="Yass'Eats" h="40px" />
-        </HStack>
-        <HStack spacing={8} display={{ base: 'none', md: 'flex' }}><Button variant="ghost" colorScheme="green" onClick={() => navigate(`/home`)}>Accueil</Button><Button variant="ghost">Commandes</Button><Button variant="ghost">Autour de moi</Button><Button variant="ghost">Profil</Button></HStack>
-        <Box><Button size="sm" variant="outline" p={2}><Icon as={FaLocationDot} mr={2} /><Text fontWeight="normal" isTruncated maxW="200px">10 rue du moulin, 75000 Paris</Text></Button></Box>
-      </Flex>
+      <Header />
       
       <Flex h="calc(100vh - 72px)">
         <VStack 

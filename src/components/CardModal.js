@@ -16,7 +16,6 @@ import {
 
 // --- Données et fonctions utilitaires ---
 const groupCartByCategory = (cart) => {
-  // Sécurité supplémentaire pour s'assurer que cart est un tableau
   if (!Array.isArray(cart)) return {}; 
   
   return cart.reduce((acc, item) => {
@@ -30,13 +29,12 @@ const groupCartByCategory = (cart) => {
 };
 
 // --- Etape 1: Récapitulatif ---
-const CartSummary = ({ cart = [] }) => { // <-- Sécurité supplémentaire ici
+const CartSummary = ({ cart = [] }) => { 
   const groupedCart = groupCartByCategory(cart);
   const totalArticles = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <VStack w="full" align="stretch" spacing={4}>
-      {/* ... (le reste du composant est inchangé) ... */}
       <HStack justify="space-between" w="full" bg="gray.50" p={3} borderRadius="md">
         <HStack>
           <Image src="/img/yburger.png" boxSize="40px" borderRadius="full" />

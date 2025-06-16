@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import axios from "axios";
 import {
   Drawer,
   DrawerBody,
@@ -9,21 +10,45 @@ import {
   Button,
   VStack,
   Divider,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 import {
   FaHeart,
   FaGear,
   FaCircleQuestion,
   FaRightFromBracket,
-  FaBicycle
-} from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+  FaBicycle,
+} from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
-  
+
+  const handleLogout = async () => {
+    const refreshToken = sessionStorage.getItem("refreshToken");
+
+    if (!refreshToken) {
+      console.warn("Aucun refreshToken trouvé !");
+      return;
+    }
+
+    try {
+      // Appel à l'API pour supprimer le refreshToken
+      await axios.post("http://localhost/api/auth/logout", {
+        refreshToken,
+      });
+
+      // Suppression des données du sessionStorage
+      sessionStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+
+      // Redirection vers la page de connexion
+      navigate("/login");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
+    }
+  };
   return (
-    
     <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
       <DrawerOverlay />
       <DrawerContent>
@@ -62,7 +87,7 @@ export default function Sidebar({ isOpen, onClose }) {
               colorScheme="red"
               variant="solid"
               justifyContent="flex-start"
-              //onClick={} // Yacine ajouté
+              onClick={handleLogout}
             >
               Déconnexion
             </Button>
@@ -71,7 +96,7 @@ export default function Sidebar({ isOpen, onClose }) {
               colorScheme="blue"
               variant="solid"
               justifyContent="flex-start"
-              onClick={() => navigate(`/MapPage`)} 
+              onClick={() => navigate(`/MapPage`)}
             >
               Mode Livreur
             </Button>

@@ -8,6 +8,8 @@ import Pizza from './components/Pizza';
 import CardModal from './components/CardModal';
 import SideBar from './components/SideBar';
 import MapPage from './components/MapPage';
+import NotificationBell from './components/NotificationBell';
+import Header from './components/Header';
 
 
 
@@ -24,6 +26,8 @@ function App() {
           <Route path="/CardModal" element={<CardModal />} />
           <Route path="/SideBar" element={<SideBar />} />
           <Route path="/MapPage" element={<MapPage />} />
+          <Route path="/Header" element={<Header />} />
+          <Route path="/NotificationBell" element={<NotificationBell />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </Router>
