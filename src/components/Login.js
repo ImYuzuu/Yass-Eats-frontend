@@ -47,12 +47,12 @@ const Login = () => {
 
       const { token, refreshToken, user } = response.data;
 
-      // 🔐 Stockage en session
+      // Stockage en session
       sessionStorage.setItem("token", token);
       sessionStorage.setItem("refreshToken", refreshToken);
       sessionStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ Redirection après connexion
+      // Redirection après connexion
       navigate("/home");
     } catch (error) {
       setError("Email ou mot de passe incorrect.");
